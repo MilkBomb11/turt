@@ -175,7 +175,7 @@ export namespace IR {
             case "UnOp": return `${instr.left} = ${instr.op} ${stringOfOperand(instr.right)}`;
             case "Call": return `${instr.dest} = call (${instr.calleeName}|${instr.args.join(',')})`;
             case "FnDecl": return `fn ${instr.name} [${instr.args.join(',')}]:\n${stringOfInstrs(instr.body, padding+"    ")}`;
-            case "Goto": return `$goto ${instr.dest}`
+            case "Goto": return `goto ${instr.dest}`
             case "GotoF": return `$if not ${stringOfOperand(instr.cond)} goto ${instr.dest}`
             case "GotoT": return `$if ${stringOfOperand(instr.cond)} goto ${instr.dest}`
             case "Label": return `label ${instr.label}`
@@ -192,7 +192,8 @@ export namespace IR {
     export function stringOfInstrs (instrs:IR.Instr[], padding:string) : string {
         return instrs
                 .map((i) => {return stringOfInstr(i, padding)})
-                .map((s) => {return padding+s;}).join('\n')
+                .map((s) => {return padding+s;})
+                .join('\n')
                  + "\n";
     }
 }

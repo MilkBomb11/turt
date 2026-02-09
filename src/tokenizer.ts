@@ -22,6 +22,8 @@ class Tokenizer {
         ["false", TokenType.False],
         ["while", TokenType.While],
         ["return", TokenType.Return],
+        ["break", TokenType.Break],
+        ["continue", TokenType.Continue],
     ])
 
     constructor (public source:string) {
@@ -62,6 +64,10 @@ class Tokenizer {
             case '/': 
                 if (this.match ('*')) {
                     while (!this.isEnd() && !(this.match('*') && this.match('/'))) 
+                    {this.advance();}
+                }
+                else if (this.match('/')) {
+                    while (!this.isEnd() && !this.match('\n')) 
                     {this.advance();}
                 }
                 else {this.appendToken(TokenType.Slash);}

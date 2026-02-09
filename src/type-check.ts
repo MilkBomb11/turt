@@ -48,7 +48,10 @@ function typeCheckStmt (stmt:AST.Stmt, returnType:Type.Type | undefined, env:Sym
             const argTypes = stmt.args.map((ntp) => {return ntp.type});
             const bodyEnv = new SymbolTable<Type.Type>(env);
             bodyEnv.define(stmt.name, Type.Func(argTypes, stmt.returnType));
-            for (const ntp of stmt.args) {bodyEnv.define(ntp.name, ntp.type);}
+            for (const ntp of stmt.args) {
+                if (bodyEnv.lookupCurrentScope(ntp.name) !== undefined) {throwError(stmt.lineNum, `Redeclartion of parameter ${ntp.name} of ${stmt.name}.`);}
+                bodyEnv.define(ntp.name, ntp.type);
+            }
             typeCheckStmt(stmt.body, stmt.returnType, bodyEnv);
             break;
         }

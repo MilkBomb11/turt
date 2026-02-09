@@ -15,6 +15,7 @@ const go_btn = document.querySelector<HTMLButtonElement>("#btn-play")!
 function run() {
     const tokenizer = new Tokenizer(textarea.value);
     const tokens = tokenizer.tokenizeAll();
+    //tokenizer.printTokens();
     const parser = new Parser(tokens);
     const ast = parser.parse();
     typeCheckStmts(ast, undefined, new SymbolTable(undefined));

@@ -89,7 +89,7 @@ namespace AST {
         lineNum: number;
     }
     export const Continue =
-        (lineNum:number) => {return {kind:"Break" as const, lineNum:lineNum};};
+        (lineNum:number) => {return {kind:"Continue" as const, lineNum:lineNum};};
 
     interface Const {
         kind: "Const";
