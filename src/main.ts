@@ -1,8 +1,10 @@
 import { AST } from "./ast";
+import { FunctionRegistry } from "./function-registry";
 import { FunctionRenamer } from "./function-renamer";
 import { resetLabelNum, resetRegNum } from "./helper";
 import { IR } from "./ir";
 import { JumpContext } from "./jmp-context";
+import { LabelResolver } from "./label-resolver";
 import { Parser } from "./parser";
 import { SymbolTable } from "./symbol-table";
 import { Tokenizer } from "./tokenizer";
@@ -26,11 +28,15 @@ function run() {
     resetLabelNum();
     resetRegNum();
     const code = translateStmts(ast, new SymbolTable(undefined), new JumpContext(undefined));
+    console.log(IR.stringOfInstrs(code));
 
+    const functionRegistry = FunctionRegistry.createRegistry(code);
+    LabelResolver.resolveLabels(code);
     console.log(AST.stringOfStmts(ast));
-    console.log(IR.stringOfInstrs(code, ""));
+    console.log(IR.stringOfInstrs(code));
     console.log(ast);
     console.log(code);
+    console.log(functionRegistry);
 }
 
 go_btn.addEventListener("click", run)

@@ -88,7 +88,7 @@ export namespace IR {
     
     interface Goto {
         kind: "Goto";
-        dest: string;
+        dest: string | number;
     }
     export const Goto =
         (dest:string) => {return {kind:"Goto" as const, dest:dest};}
@@ -96,7 +96,7 @@ export namespace IR {
     interface GotoT {
         kind: "GotoT";
         cond: Operand;
-        dest: string;
+        dest: string | number;
     }
     export const GotoT =
         (cond:Operand, dest:string) => {return {kind:"GotoT" as const, cond:cond, dest:dest};}
@@ -104,7 +104,7 @@ export namespace IR {
     interface GotoF {
         kind: "GotoF";
         cond: Operand;
-        dest: string;
+        dest: string | number;
     }
     export const GotoF =
         (cond:Operand, dest:string) => {return {kind:"GotoF" as const, cond:cond, dest:dest};}
@@ -113,10 +113,10 @@ export namespace IR {
         kind: "Call";
         dest: string;
         calleeName: string;
-        args: string[];
+        args: Operand[];
     }
     export const Call =
-        (dest:string, calleeName:string, args:string[]) => {return {kind:"Call" as const, dest:dest, calleeName:calleeName, args:args};}
+        (dest:string, calleeName:string, args:Operand[]) => {return {kind:"Call" as const, dest:dest, calleeName:calleeName, args:args};}
     
     interface Ret {
         kind: "Ret";
@@ -173,7 +173,7 @@ export namespace IR {
             case "Alloc": return `${instr.dest} = alloc(${stringOfOperand(instr.operand)})`;
             case "BinOp": return `${instr.left} = ${stringOfOperand(instr.right1)} ${instr.op} ${stringOfOperand(instr.right2)}`;
             case "UnOp": return `${instr.left} = ${instr.op} ${stringOfOperand(instr.right)}`;
-            case "Call": return `${instr.dest} = call (${instr.calleeName}|${instr.args.join(',')})`;
+            case "Call": return `${instr.dest} = call (${instr.calleeName}|${instr.args.map(stringOfOperand).join(',')})`;
             case "FnDecl": return `fn ${instr.name} [${instr.args.join(',')}]:\n${stringOfInstrs(instr.body, padding+"    ")}`;
             case "Goto": return `goto ${instr.dest}`
             case "GotoF": return `$if not ${stringOfOperand(instr.cond)} goto ${instr.dest}`
@@ -189,10 +189,10 @@ export namespace IR {
         }
     }
 
-    export function stringOfInstrs (instrs:IR.Instr[], padding:string) : string {
+    export function stringOfInstrs (instrs:IR.Instr[], padding:string = "") : string {
         return instrs
-                .map((i) => {return stringOfInstr(i, padding)})
-                .map((s) => {return padding+s;})
+                .map((instr) => {return stringOfInstr(instr, padding)})
+                .map((s, idx) => {return `${padding}${idx}: ${s}`;})
                 .join('\n')
                  + "\n";
     }

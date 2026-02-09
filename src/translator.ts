@@ -182,12 +182,12 @@ function translateExpr (expr:AST.Expr, env:SymbolTable<[string,Type.Type]>) : [s
         }
         case "Call": {
             if (expr.returnType === undefined) {throwError(expr.lineNum, `Typecheck fail: return type of call not updated.`);}
-            let regs: string[] = []
+            let regs: IR.Operand[] = []
             let code: IR.Instr[] = []
             for (const e of expr.args) {
                 const [t1, code1, _] = translateExpr(e, env);
                 code = [...code, ...code1]
-                regs.push(t1);
+                regs.push(IR.Reg(t1));
             }
             const r = createReg();
             code = [...code, IR.Call(r, expr.calleeName, regs)]

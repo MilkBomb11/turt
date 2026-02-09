@@ -40,3 +40,9 @@
 <ntp>        ::= <name> ':' <type>
 <type>       ::= 'ptr' '<' <type> '>' | <type_atom>
 <type_atom>  ::= 'int' | 'bool'
+
+TODO
+- create function registry that is a list which contains reference to all FnDecl IR nodes.
+- label resolver goes through the IR of each function, resolving all labels to indices (local address) <- this is safe since only local jumps are allowed.
+- executor, when met with call instruction, references the function registry to figure out which address to set the program counter and which parameters to prelude.
+- address is of type Addr(functionName:string | undefined, index:int);
