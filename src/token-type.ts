@@ -14,6 +14,7 @@ enum TokenType {
     Let = "Let",
     As = "As",
     Alloc = "Alloc",
+    Print = "Print",
     If = "If",
     Else = "Else",
     While = "While",

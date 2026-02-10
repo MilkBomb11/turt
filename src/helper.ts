@@ -6,6 +6,10 @@ function throwError(lineNum:number, msg:string): never {
   throw new Error(`line[${lineNum}]: ${msg}.`);
 } 
 
+function bool2Int (b:boolean) : number {
+        if (b) {return 1;}
+        return 0;
+}
 
 let regNum = 0;
 let createReg = () => {return `%r${regNum++}`;}
@@ -15,4 +19,4 @@ let createLabel = () => {return `.L${labelNum++}`;}
 let resetLabelNum = () => {labelNum = 0;}
 
 
-export { throwError, assertUnreachable, createReg, createLabel, resetRegNum, resetLabelNum }
+export { throwError, assertUnreachable, createReg, createLabel, resetRegNum, resetLabelNum, bool2Int }

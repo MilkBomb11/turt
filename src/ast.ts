@@ -68,7 +68,7 @@ namespace AST {
     }
     export const Return =
         (lineNum:number, expr:Expr) => {return {kind:"Return" as const, lineNum:lineNum, expr:expr};}
-
+    
     interface ExprStmt {
         kind: "ExprStmt";
         lineNum:number;

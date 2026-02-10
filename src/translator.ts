@@ -21,6 +21,7 @@ function translateExpr (expr:AST.Expr, env:SymbolTable<[string,Type.Type]>) : [s
             }
         }
         case "Var": {
+            console.log(env);
             const [xp,type] = env.lookup(expr.name)!;
             const r = createReg();
             const arth = Type.toArth(type);
@@ -166,13 +167,14 @@ function translateExpr (expr:AST.Expr, env:SymbolTable<[string,Type.Type]>) : [s
             }
         }
         case "UnOp": {
-            const [t1, code, _] = translateExpr(expr.operand, env);
+            const [t1, code, arth] = translateExpr(expr.operand, env);
             const r = createReg();
             switch (expr.op) {
-                case TokenType.Minus: return [r, [...code, IR.UnOp(r, IR.UnOperator.Neg, IR.Reg(t1))], Arth.Int]
-                case TokenType.Plus: return [r, [...code, IR.UnOp(r, IR.UnOperator.UPlus, IR.Reg(t1))], Arth.Int]
-                case TokenType.Bang: return [r, [...code, IR.UnOp(r, IR.UnOperator.Not, IR.Reg(t1))], Arth.Bool]
-                case TokenType.Alloc: return [r, [...code, IR.Alloc(r, IR.Reg(t1))], Arth.Ptr(Arth.Bool)]
+                case TokenType.Minus: return [r, [...code, IR.UnOp(r, IR.UnOperator.Neg, IR.Reg(t1))], Arth.Int];
+                case TokenType.Plus: return [r, [...code, IR.UnOp(r, IR.UnOperator.UPlus, IR.Reg(t1))], Arth.Int];
+                case TokenType.Bang: return [r, [...code, IR.UnOp(r, IR.UnOperator.Not, IR.Reg(t1))], Arth.Bool];
+                case TokenType.Alloc: return [r, [...code, IR.Alloc(r, IR.Reg(t1))], Arth.Ptr(Arth.Bool)];
+                case TokenType.Print: return [r, [...code, IR.Print(r, IR.Reg(t1))], arth];
                 default:throwError(expr.lineNum, `Typecheck fail: Tried to generate IR of invalid unary operator ${expr.op}`);
             }
         }
@@ -217,7 +219,7 @@ function translateStmt (stmt:AST.Stmt, env:SymbolTable<[string,Type.Type]>, jmpC
             const size = sizeOfType(type);
             env.define(name, [r, type])
             if (size === 4) {return [...code1, IR.Alloc(r, IR.Imm(size)), IR.StoreWord(IR.Reg(t1), r)];}
-            else {return [IR.Alloc(r, IR.Imm(size)), IR.StoreByte(IR.Reg(t1), r)];}
+            else {return [...code1, IR.Alloc(r, IR.Imm(size)), IR.StoreByte(IR.Reg(t1), r)];}
         }
         case "Return": {
             const [t1, code1, _] = translateExpr(stmt.expr, env);
@@ -303,4 +305,9 @@ function translateStmts(stmts:AST.Stmt[], env:SymbolTable<[string,Type.Type]>, j
     return code;
 }
 
-export { translateStmts }
+function translate(stmts:AST.Stmt[]) : IR.Instr[] {
+    const code = translateStmts(stmts, new SymbolTable(undefined), new JumpContext(undefined));
+    return [...code, IR.Halt];
+}
+
+export { translate }

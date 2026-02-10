@@ -84,6 +84,8 @@ namespace FunctionRenamer {
         env = collectFnDecl(stmts, env);
         for (let s of stmts) {traverseStmt(s, env);}
     }
+
+    export function traverse(stmts:AST.Stmt[]) {traverseStmts(stmts, new SymbolTable(undefined));}
 }
 
 export { FunctionRenamer }

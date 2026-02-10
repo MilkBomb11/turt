@@ -44,7 +44,7 @@ namespace LabelResolver {
                 }
                 case "Alloc": case "BinOp" : case "Call" : 
                 case "Label": case "LoadByte": case "LoadWord": 
-                case "Ret": case "Set": case "StoreByte": case "StoreWord": case "UnOp": break;
+                case "Ret": case "Set": case "StoreByte": case "StoreWord": case "UnOp": case "Print": case "Halt": break;
                 default: assertUnreachable(instr)
             }
         }

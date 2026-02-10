@@ -192,7 +192,7 @@ class Parser {
     }
 
     private unary() : AST.Expr {
-        if (this.match([TokenType.Minus, TokenType.Plus, TokenType.Bang, TokenType.Alloc])) {
+        if (this.match([TokenType.Minus, TokenType.Plus, TokenType.Bang, TokenType.Alloc, TokenType.Print])) {
             let e = AST.UnOp(this.peekPrevious().lineNum, this.peekPrevious().type, this.unary());
             return e;
         }

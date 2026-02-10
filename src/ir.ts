@@ -21,6 +21,13 @@ export namespace IR {
     }
     export const Alloc = (dest:string, operand:Operand) => {return {kind:"Alloc" as const, dest:dest, operand:operand};}
 
+    interface Print {
+        kind: "Print";
+        dest: string;
+        operand: Operand;
+    }
+    export const Print = (dest:string, operand:Operand) => {return {kind:"Print" as const, dest:dest, operand:operand};}
+
     interface Set {
         kind: "Set";
         left: string
@@ -134,8 +141,11 @@ export namespace IR {
     export const FnDecl =
         (name:string, args:string[], body:Instr[]) => {return {kind:"FnDecl" as const, name:name, args:args, body:body};}
     
-    export type Instr = Alloc | Set | BinOp | UnOp 
-                        | LoadWord | LoadByte | StoreWord | StoreByte | Label | Goto | GotoF | GotoT | Call | FnDecl | Ret
+    export type Instr = Alloc | Print | Set | BinOp | UnOp 
+                        | LoadWord | LoadByte | StoreWord | StoreByte | Label | Goto | GotoF | GotoT | Call | FnDecl | Ret | Halt
+    
+    interface Halt {kind: "Halt";}
+    export const Halt = {kind:"Halt" as const};
 }
 
 export namespace IR {
@@ -175,16 +185,18 @@ export namespace IR {
             case "UnOp": return `${instr.left} = ${instr.op} ${stringOfOperand(instr.right)}`;
             case "Call": return `${instr.dest} = call (${instr.calleeName}|${instr.args.map(stringOfOperand).join(',')})`;
             case "FnDecl": return `fn ${instr.name} [${instr.args.join(',')}]:\n${stringOfInstrs(instr.body, padding+"    ")}`;
-            case "Goto": return `goto ${instr.dest}`
-            case "GotoF": return `$if not ${stringOfOperand(instr.cond)} goto ${instr.dest}`
-            case "GotoT": return `$if ${stringOfOperand(instr.cond)} goto ${instr.dest}`
-            case "Label": return `label ${instr.label}`
-            case "LoadByte": return `${instr.dest} = *(${instr.src}) [byte]`
-            case "LoadWord": return `${instr.dest} = *(${instr.src}) [word]`
-            case "StoreByte": return `*(${instr.dest}) = ${stringOfOperand(instr.src)} [byte]`
-            case "StoreWord": return `*(${instr.dest}) = ${stringOfOperand(instr.src)} [word]`
-            case "Ret": return `ret ${stringOfOperand(instr.operand)}`
-            case "Set": return `${instr.left} = ${stringOfOperand(instr.right)}`
+            case "Goto": return `goto ${instr.dest}`;
+            case "GotoF": return `if not ${stringOfOperand(instr.cond)} goto ${instr.dest}`;
+            case "GotoT": return `if ${stringOfOperand(instr.cond)} goto ${instr.dest}`;
+            case "Label": return `label ${instr.label}`;
+            case "LoadByte": return `${instr.dest} = *(${instr.src}) [byte]`;
+            case "LoadWord": return `${instr.dest} = *(${instr.src}) [word]`;
+            case "StoreByte": return `*(${instr.dest}) = ${stringOfOperand(instr.src)} [byte]`;
+            case "StoreWord": return `*(${instr.dest}) = ${stringOfOperand(instr.src)} [word]`;
+            case "Ret": return `ret ${stringOfOperand(instr.operand)}`;
+            case "Set": return `${instr.left} = ${stringOfOperand(instr.right)}`;
+            case "Print": return `${instr.dest} = print ${stringOfOperand(instr.operand)}`;
+            case "Halt": return `halt`;
             default: assertUnreachable(instr);
         }
     }

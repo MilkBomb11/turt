@@ -16,6 +16,10 @@ function collectFnDecl (stmts:AST.Stmt[], env:SymbolTable<Type.Type>) : SymbolTa
     return env;
 }
 
+function typeCheck(stmts:AST.Stmt[]) {
+    typeCheckStmts(stmts, undefined, new SymbolTable(undefined));
+}
+
 function typeCheckStmts (stmts:AST.Stmt[], returnType:Type.Type | undefined, env:SymbolTable<Type.Type>) : void {
     env = collectFnDecl(stmts, env);
     for (const s of stmts) {typeCheckStmt(s, returnType, env);}
@@ -164,6 +168,10 @@ function typeCheckExpr (expr:AST.Expr, env:SymbolTable<Type.Type>) : Type.Type {
                     if (operandType.kind !== "Int") {throwError(expr.lineNum, `Expected Int for operator ${expr.op}`)}
                     return Type.Ptr(Type.Bool);
                 }
+                case TokenType.Print: { 
+                    if (operandType.kind === "Func") {throwError(expr.lineNum, `Cannot print operand of type ${Type.stringOfType(operandType)}`);}
+                    return operandType; 
+                }
             }
             throwError(expr.lineNum, `Invalid unary operator ${expr.op}`);
         }
@@ -221,4 +229,4 @@ function typeCheckExpr (expr:AST.Expr, env:SymbolTable<Type.Type>) : Type.Type {
     }
 }
 
-export { typeCheckStmts }
+export { typeCheck }

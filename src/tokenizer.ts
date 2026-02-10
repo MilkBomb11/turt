@@ -24,6 +24,7 @@ class Tokenizer {
         ["return", TokenType.Return],
         ["break", TokenType.Break],
         ["continue", TokenType.Continue],
+        ["print", TokenType.Print],
     ])
 
     constructor (public source:string) {
