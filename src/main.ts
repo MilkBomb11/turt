@@ -6,6 +6,7 @@ import { resetLabelNum, resetRegNum } from "./helper";
 import { IR } from "./ir";
 import { LabelResolver } from "./label-resolver";
 import { Parser } from "./parser";
+import { ReturnChecker } from "./return-check";
 import { Tokenizer } from "./tokenizer";
 import { translate } from "./translator";
 import { typeCheck } from "./type-check";
@@ -23,6 +24,7 @@ function run() {
     if (debug) {console.log(AST.stringOfStmts(ast));}
 
     typeCheck(ast);
+    ReturnChecker.check(ast);
     if (debug) {console.log(AST.stringOfStmts(ast));}
 
     FunctionRenamer.resetFunctionUid();
