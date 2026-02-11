@@ -21,7 +21,6 @@ function translateExpr (expr:AST.Expr, env:SymbolTable<[string,Type.Type]>) : [s
             }
         }
         case "Var": {
-            console.log(env);
             const [xp,type] = env.lookup(expr.name)!;
             const r = createReg();
             const arth = Type.toArth(type);

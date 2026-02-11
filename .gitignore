@@ -6,10 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*.txt
 
 node_modules
 dist
 dist-ssr
+tests
 *.local
 
 # Editor directories and files

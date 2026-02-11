@@ -61,6 +61,7 @@ namespace FunctionRenamer {
                 break;
             }
             case "If": {
+                traverseExpr(stmt.cond, env);
                 const trueArmEnv = new SymbolTable(env);
                 traverseStmt(stmt.true_arm, trueArmEnv);
                 const falseArmEnv = new SymbolTable(env);
@@ -68,6 +69,7 @@ namespace FunctionRenamer {
                 break;
             }
             case "While": {
+                traverseExpr(stmt.cond, env);
                 const bodyEnv = new SymbolTable(env);
                 traverseStmt(stmt.body, bodyEnv);
                 break;

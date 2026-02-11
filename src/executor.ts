@@ -18,7 +18,7 @@ class Executor {
     envStack: Env[];
     currentEnv: Env;
 
-    constructor (public code:IR.Instr[], public functionRegistry:Map<string, IR.Instr>) {
+    constructor (public code:IR.Instr[], public functionRegistry:Map<string, IR.Instr>, public onPrint?: (s:string) => void) {
         this.memory = new Memory();
         this.pc = CodeAddr(undefined, 0);
         this.returnAddrStack = [];
@@ -143,7 +143,8 @@ class Executor {
                 case "Print": {
                     const value = this.getOperandValue(instr.operand);
                     this.currentEnv.set(instr.dest, value);
-                    console.log(value);
+                    if (this.onPrint === undefined) {console.log(value);}
+                    else {this.onPrint(value.toString());}
                     this.pc.index++;
                     break;
                 }
