@@ -1,6 +1,7 @@
-import { debug } from "./run";
+import { optimizeAndDebug } from "./run";
 
 const textarea = document.querySelector<HTMLTextAreaElement>("#text")!
 const go_btn = document.querySelector<HTMLButtonElement>("#btn-play")!
 
-go_btn.addEventListener("click", () => {debug(textarea.value);})
+go_btn.addEventListener("click", () => {optimizeAndDebug(textarea.value);}
+)
