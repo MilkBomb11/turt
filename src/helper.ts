@@ -1,3 +1,5 @@
+import { cloneDeep } from "lodash-es";
+
 function assertUnreachable(x: never): never {
   throw new Error(`Did not expect to get here with value: ${x}`);
 }
@@ -7,8 +9,20 @@ function throwError(lineNum:number, msg:string): never {
 } 
 
 function bool2Int (b:boolean) : number {
-        if (b) {return 1;}
-        return 0;
+  if (b) {return 1;}
+  return 0;
+}
+
+function setUnion<T> (a:Set<T>, b:Set<T>) : Set<T> {
+  const s = cloneDeep(a);
+  for (const element of b) {s.add(element);}
+  return s;
+}
+
+function setDifference<T> (a:Set<T>, b:Set<T>) : Set<T> {
+  const s = cloneDeep(a);
+  for (const element of b) {s.delete(element);}
+  return s;
 }
 
 let regNum = 0;
@@ -19,4 +33,4 @@ let createLabel = () => {return `.L${labelNum++}`;}
 let resetLabelNum = () => {labelNum = 0;}
 
 
-export { throwError, assertUnreachable, createReg, createLabel, resetRegNum, resetLabelNum, bool2Int }
+export { throwError, assertUnreachable, createReg, createLabel, resetRegNum, resetLabelNum, bool2Int, setUnion, setDifference }

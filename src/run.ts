@@ -6,7 +6,7 @@ import { FunctionRenamer } from "./function-renamer";
 import { resetLabelNum, resetRegNum } from "./helper";
 import { IR } from "./ir";
 import { LabelResolver } from "./label-resolver";
-import { Mem2Reg } from "./optimize";
+import { optimize } from "./optimize";
 import { Parser } from "./parser";
 import { ReturnChecker } from "./return-check";
 import { Tokenizer } from "./tokenizer";
@@ -65,16 +65,14 @@ function optimizeAndDebug (source:string) {
     resetRegNum();
     let code = translate(ast);
     console.log(IR.stringOfInstrs(code));
-    code = Mem2Reg.mem2Reg(code);
+    
+    code = optimize(code);
     console.log(IR.stringOfInstrs(code));
 
     const functionRegistry = FunctionRegistry.createRegistry(code);
     LabelResolver.resolveLabels(code);
-    console.log(IR.stringOfInstrs(code));
-    console.log(functionRegistry);
 
-    const cfg = new CFG(code);
-    console.log(`${cfg}`);
+    console.log(functionRegistry);
 
     const executor = new Executor(code, functionRegistry);
     executor.execute();
@@ -104,7 +102,9 @@ function optimzieAndRun(source:string, isTest:boolean) : string[] {
         resetLabelNum();
         resetRegNum();
         let code = translate(ast);
-        code = Mem2Reg.mem2Reg(code);
+        console.log(IR.stringOfInstrs(code));
+        code = optimize(code);
+        console.log(IR.stringOfInstrs(code));
 
         const functionRegistry = FunctionRegistry.createRegistry(code);
         LabelResolver.resolveLabels(code);

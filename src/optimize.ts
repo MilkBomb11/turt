@@ -1,4 +1,6 @@
+import { LVAnalysis } from "./dfa";
 import { IR } from "./ir";
+import { cloneDeep, isEqual } from "lodash-es"
 
 namespace Mem2Reg {
     function getAllAllocDests(instrs:IR.Instr[]) : Set<string> {
@@ -92,4 +94,49 @@ namespace Mem2Reg {
     }
 }
 
-export { Mem2Reg }
+namespace DeadCodeElimination {
+    export function dce(instrs:IR.Instr[]) : IR.Instr[] {
+        const lv = new LVAnalysis(instrs);
+        const [_, outSets] = lv.getInOut();
+        const code:IR.Instr[] = []
+        for (let i = 0; i < instrs.length; i++) {
+            const instr = instrs[i];
+            const def = lv.getDefOfInstr(instr);
+            const out = outSets[i];
+            if (def.size === 0) {code.push(instr);}
+            else if (instr.kind === "Print") {code.push(instr);}
+            else if (instr.kind === "Call") {code.push(instr);}
+            else {
+                for (const dest of def) {
+                    if (out.has(dest)) 
+                    {code.push(instr); break;}
+                }
+            }
+        }
+        return code;
+    }
+}
+
+function optimizationPass(instrs:IR.Instr[]) : IR.Instr[] {
+    let code: IR.Instr[] = Mem2Reg.mem2Reg(instrs);
+    code = DeadCodeElimination.dce(code);
+    for (let i = 0; i < code.length; i++) {
+        const instr = code[i];
+        if (instr.kind === "FnDecl") {
+            code[i] = IR.FnDecl(instr.name, instr.args, optimizationPass(instr.body));
+        }
+    }
+    return code;
+}
+
+function optimize(instrs:IR.Instr[]) : IR.Instr[] {
+    let oldInstrs = cloneDeep(instrs);
+    let newInstrs = [];
+    while (true) {
+        newInstrs = optimizationPass(oldInstrs);
+        if (isEqual(oldInstrs, newInstrs)) {return oldInstrs;}
+        oldInstrs = cloneDeep(newInstrs);
+    } 
+}
+
+export { optimize }
