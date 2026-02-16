@@ -78,7 +78,7 @@ function optimizeAndDebug (source:string) {
     executor.execute();
 }
 
-function optimzieAndRun(source:string, isTest:boolean) : string[] {
+function optimizeAndRun(source:string, isTest:boolean) : string[] {
     const output:string[] = [];
     const printHandler = 
         (s:string) => {
@@ -156,4 +156,4 @@ function run(source:string, isTest:boolean) : string[] {
     return output;
 }
 
-export { debug, optimizeAndDebug, run, optimzieAndRun }
+export { debug, optimizeAndDebug, run, optimizeAndRun }

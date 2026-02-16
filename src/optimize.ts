@@ -1,4 +1,4 @@
-import { LVAnalysis } from "./dfa";
+import { LVAnalysis } from "./live-variable-analysis";
 import { IR } from "./ir";
 import { cloneDeep, isEqual } from "lodash-es"
 
