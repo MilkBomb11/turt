@@ -1,5 +1,5 @@
 import { CFG } from "./cfg";
-import { throwError } from "./helper";
+import { assertUnreachable, throwError } from "./helper";
 import type { IR } from "./ir";
 import { cloneDeep } from "lodash-es";
 
@@ -26,8 +26,16 @@ type D = Map<reg, C>
 
 class CPAnalysis {
     cfg:CFG
-    constructor (instrs:IR.Instr[]) {
+    allVars: Set<reg>;
+    allParams: Set<reg>;
+    constructor (public instrs:IR.Instr[]) {
         this.cfg = new CFG(instrs);
+        this.allVars = this.getAllVars();
+        this.allParams = new Set();
+        for (const r of this.allVars) {
+            if (r[0] !== '%') 
+            {this.allParams.add(r);}
+        }
     }
 
     joinC (c1:C, c2:C) : C {
@@ -46,6 +54,72 @@ class CPAnalysis {
             d.set(variable, this.joinC(c, c2));
         }
         return d;
+    }
+
+    getAllVars () : Set<reg> {
+        const acc: Set<reg> = new Set();
+        for (const instr of this.instrs) {
+            const regs = this.getVarsOfInstr(instr);
+            for (const reg of regs) {acc.add(reg);}
+        }
+        return acc;
+    }
+
+    initialD () : D {
+        const d: D = new Map();
+        for (const v of this.allVars) {d.set(v, Undef);}
+        for (const v of this.allParams) {d.set(v, Nac);}
+        return d;
+    }
+
+    getVarsOfInstr (instr:IR.Instr) : Set<reg> {
+        switch (instr.kind) {
+            case "Alloc": {
+                const s = new Set([instr.dest]);
+                if (instr.operand.kind === "Reg") {s.add(instr.operand.name);}
+                return s;
+            }
+            case "Set": {
+                const s = new Set([instr.left]);
+                if (instr.right.kind === "Reg") {s.add(instr.right.name);}
+                return s;
+            }
+            case "BinOp": {
+                const s = new Set([instr.left]);
+                if (instr.right1.kind === "Reg") {s.add(instr.right1.name);}
+                if (instr.right2.kind === "Reg") {s.add(instr.right2.name);}
+                return s; 
+            }
+            case "UnOp": {
+                const s = new Set([instr.left]);
+                if (instr.right.kind === "Reg") {s.add(instr.right.name);}
+                return s;
+            }
+            case "Call": {
+                const s = new Set([instr.dest]);
+                for (const arg of instr.args) {
+                    if (arg.kind === "Reg") 
+                    {s.add(arg.name);}
+                }
+                return s;
+            }
+            case "GotoT": case "GotoF": {
+                if (instr.cond.kind === "Reg") { return new Set([instr.cond.name]); }
+                return new Set();
+            }
+            case "Print": case "Ret": {
+                if (instr.operand.kind === "Reg") { return new Set([instr.operand.name]); }
+                return new Set();
+            }
+            case "StoreByte": case "StoreWord": {
+                const s = new Set([instr.dest]);
+                if (instr.src.kind === "Reg") {s.add(instr.src.name);}
+                return s;
+            }
+            case "LoadByte": case "LoadWord": {return new Set([instr.dest, instr.src]);}
+            case "FnDecl": case "Goto": case "Halt": case "Label": return new Set();
+            default: assertUnreachable(instr);
+        }
     }
 }
 
