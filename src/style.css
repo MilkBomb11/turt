@@ -27,6 +27,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     height: 100%;
+    min-height: 0;
 }
 
 .main-container {
@@ -37,6 +38,7 @@ body {
     max-width: 1800px;
     margin-bottom: 20px;
     flex-grow: 1;
+    min-height: 0;
 }
 
 #terminal-output {
@@ -51,7 +53,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     height: 100%;
-    min-height: 400px;
+    min-height: 0;
 }
 
 #ir-output {
@@ -66,7 +68,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     height: 100%;
-    min-height: 400px;
+    min-height: 0;
 }
 
 .button-container {
