@@ -1,7 +1,7 @@
 import { CFG } from "./cfg";
 import { assertUnreachable, bool2Int, throwError } from "./helper";
 import { IR } from "./ir";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 
 interface Constant {
     kind: "Constant";
@@ -136,7 +136,10 @@ class CPAnalysis {
                 case IR.BinOperator.Add: return Constant((c1.inner+c2.inner)|0);
                 case IR.BinOperator.Sub: return Constant((c1.inner-c2.inner)|0);
                 case IR.BinOperator.Mul: return Constant((c1.inner*c2.inner)|0);
-                case IR.BinOperator.Div: return Constant(Math.floor(c1.inner/c2.inner));
+                case IR.BinOperator.Div: {
+                    if (c2.inner === 0) {return Undef;}
+                    return Constant(Math.floor(c1.inner/c2.inner));
+                }
                 case IR.BinOperator.Lt: return Constant(bool2Int(c1.inner < c2.inner));
                 case IR.BinOperator.Leq: return Constant(bool2Int(c1.inner <= c2.inner));
                 case IR.BinOperator.Gt: return Constant(bool2Int(c1.inner > c2.inner));
@@ -175,8 +178,7 @@ class CPAnalysis {
             case "Alloc":
             case "LoadByte":
             case "LoadWord":
-            case "StoreByte":
-            case "StoreWord":
+            
             case "Call": {
                 const newD = cloneDeep(d);
                 newD.set(instr.dest, Nac);
@@ -249,6 +251,7 @@ class CPAnalysis {
                     return newD;
                 }
             }
+            case "StoreByte": case "StoreWord":
             case "Goto": case "GotoF": case "GotoT": 
             case "Label": case "FnDecl": case "Halt":
             case "Ret": {
@@ -264,11 +267,29 @@ class CPAnalysis {
             this.inSets[i] = this.initialD();
             this.outSets[i] = this.initialD();
         }
+
         let change = true;
         while (change) {
             change = false;
-            
+            for (let i = 0; i < this.cfg.code.length; i++) {
+                const oldIn = cloneDeep(this.inSets[i]);
+                const oldOut = cloneDeep(this.outSets[i]);
+
+                this.inSets[i] = this.initialD();
+                const preds = this.cfg.getPreds(i)!;
+                if (preds) {
+                    for (const p of preds) {
+                        const predOut = this.outSets[p];
+                        this.inSets[i] = this.joinD(this.inSets[i], predOut);
+                    }
+                }
+                
+                this.outSets[i] = this.transfer(i, this.inSets[i]);
+                if (!isEqual(this.outSets[i], oldOut) || !(isEqual(this.inSets[i], oldIn))) {change = true;}
+            }
         }
+
+        return [this.inSets, this.outSets];
     }
 }
 

@@ -1,5 +1,6 @@
 import { AST } from "./ast";
 import { CFG } from "./cfg";
+import { CPAnalysis } from "./constant-propagation-analysis";
 import { Executor } from "./executor";
 import { FunctionRegistry } from "./function-registry";
 import { FunctionRenamer } from "./function-renamer";
@@ -68,6 +69,8 @@ function optimizeAndDebug (source:string) {
     
     code = optimize(code);
     console.log(IR.stringOfInstrs(code));
+    const cpa = new CPAnalysis(code);
+    console.log(cpa.getInOut());
 
     const functionRegistry = FunctionRegistry.createRegistry(code);
     LabelResolver.resolveLabels(code);
