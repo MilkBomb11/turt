@@ -3,6 +3,8 @@
 turt is a statically typed imperative toy language. <br>
 It supports pointers, int, bool, and functions.
 
+You can play around with it <a href="https://milkbomb11.github.io/turt/">here</a>.
+
 Here is a snippet of valid turt code.
 ```
 fn add(x:int, y:int) : int {
