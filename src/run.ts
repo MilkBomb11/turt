@@ -121,6 +121,49 @@ function optimizeAndRun(source:string, isTest:boolean) : string[] {
     return output;
 }
 
+function runAndDisplay(source:string, terminalOutput: HTMLDivElement, irOutput: HTMLDivElement) {
+    const printHandler = (s: string) => {
+        terminalOutput.innerText += s + '\n';
+    };
+
+    const irPrintHandler = (s: string) => {
+        irOutput.innerText += s + '\n';
+    };
+
+    try {
+        const tokenizer = new Tokenizer(source);
+        const tokens = tokenizer.tokenizeAll();
+
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+
+        typeCheck(ast);
+        ReturnChecker.check(ast);
+
+        FunctionRenamer.resetFunctionUid();
+        FunctionRenamer.traverse(ast);
+
+        resetLabelNum();
+        resetRegNum();
+        let code = translate(ast);
+        irPrintHandler("--- Initial IR ---");
+        irPrintHandler(IR.stringOfInstrs(code));
+
+        code = optimize(code);
+        irPrintHandler("\n--- Optimized IR ---");
+        irPrintHandler(IR.stringOfInstrs(code));
+
+        const functionRegistry = FunctionRegistry.createRegistry(code);
+        LabelResolver.resolveLabels(code);
+
+        const executor = new Executor(code, functionRegistry, printHandler);
+        executor.execute();
+    } catch (e) {
+        printHandler(`Error: ${(e as Error).message}`);
+        irPrintHandler(`Error: ${(e as Error).message}`);
+    }
+}
+
 
 function run(source:string, isTest:boolean) : string[] {
     const output:string[] = [];
@@ -159,4 +202,4 @@ function run(source:string, isTest:boolean) : string[] {
     return output;
 }
 
-export { debug, optimizeAndDebug, run, optimizeAndRun }
+export { debug, optimizeAndDebug, run, optimizeAndRun, runAndDisplay }
