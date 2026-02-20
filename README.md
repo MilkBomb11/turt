@@ -5,7 +5,7 @@ It supports pointers, int, bool, and functions.
 
 You can play around with it <a href="https://milkbomb11.github.io/turt/">here</a>.
 
-Here is a snippet of valid turt code.
+Here are some snippets of valid turt code.
 ```
 fn add(x:int, y:int) : int {
     return x + y;
@@ -16,6 +16,46 @@ while (i < 10) {
     i = i + 1;
     print (add(i, i+1));
 }
+```
+
+```
+let x: ptr<int> = alloc(4*5) as ptr<int>;
+let i: int = 0;
+while (i < 5) {
+  *(x + i) = i * i;
+  i = i + 1;
+}
+
+let p: ptr<int> = x;
+while (p < x + 5) {
+  print(*p);
+  p = p + 1;
+}
+```
+
+```
+fn fib(n:int) : int {
+  if (n <= 1) {return 1;}
+  return fib(n - 1) + fib(n - 2);
+}
+
+print(fib(5));
+```
+
+```
+fn is_odd(n:int) : bool {
+  if (n == 1) {return true;}
+  else if (n == 2) {return false;}
+  else {return is_even(n-1); }  
+}
+
+fn is_even(n:int) : bool {
+  if (n == 1) {return false;}
+  else if (n == 2) {return true;}
+  else {return is_odd(n-1);}
+}
+
+print(is_even(6));
 ```
 
 The EBNF is as below.
